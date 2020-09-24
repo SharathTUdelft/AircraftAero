@@ -9,13 +9,18 @@ class Airfoil:
         self.name = airfoil_name
         self.resolution = resolution
         self.alpha = np.deg2rad(alpha)
+        self.panels = self.resolution -1
+        self.cn1 = np.zeros((self.panels, self.panels))
+        self.cn2 = np.zeros((self.panels, self.panels))
+        self.ct1 = np.zeros((self.panels, self.panels))
+        self.ct2 = np.zeros((self.panels, self.panels))
 
     def name_scrape(self):
         return self.name[4], self.name[5], self.name[6], self.name[7]
 
     def construct_airfoil(self):
         if self.type == "symmetric":
-            theta = np.linspace(0, np.pi, 50)
+            theta = np.linspace(0, np.pi, self.resolution)
             x_c = 0.5 * (1 - np.cos(theta))
             x_c = np.flip(x_c) # flipped so as per fotran program
             a, b, c, d = self.name_scrape()
@@ -45,7 +50,29 @@ class Airfoil:
     def solve(self):
         self.RHS = np.sin(self.theta - self.alpha)
 
+        for i in range(self.panels):
+            for j in range(self.panels):
+                if i == j:
+                    self.cn1[i,j] = -1
+                    self.cn2[i,j] = -1
+                    self.ct1[i,j] = 0.5 * np.pi
+                    self.ct2[i,j] = 0.5 * np.pi
+                else:
+                    A = - (self.x_vort[i] - self.x_c[j]) * self.cosine[j] - (self.y_vort[i] - self.foil[j]) * self.sine[j]
+                    B = (self.x_vort[i] - self.x_c[j]) ** 2 + (self.y_vort[i] - self.foil[j]) ** 2
+                    C = np.sin(self.theta[i] - self.theta[j])
+                    D = np.cos(self.theta[i] - self.theta[j])
+                    E = (self.x_vort[i] - self.x_c[j]) * self.sine[j] - (self.y_vort[i] - self.foil[j]) * self.cosine[j]
+                    F = np.log(1 + self.length[j]* (self.length[j] + 2*A)/B )
+                    G = np.arctan2(E*self.length[j], B+(A*self.length[j]) )
+                    P = ((self.x_vort[i] - self.x_c[j]) * np.sin(self.theta[i] - 2*self.theta[j])) + \
+                        ((self.y_vort[i] - self.foil[j]) * np.cos(self.theta[i] - 2*self.theta[j]))
 
+                    Q = ((self.x_vort[i] - self.x_c[j]) * np.cos(self.theta[i] - 2 * self.theta[j])) - \
+                        ((self.y_vort[i] - self.foil[j]) * np.sin(self.theta[i] - 2 * self.theta[j]))
+
+                    self.cn2[i, j] = D + (0.5 * Q * F/self.length[j]) - (A*C + D*E) * G/self.length[j]
+                    self.cn1[i, j] =
 
     def plot(self):
         self.construct_airfoil()
