@@ -19,13 +19,21 @@ class airfoil:
             t = int(c+d)/100
             top = 5*t*(0.2969*(x_c**0.5) - 0.1260*x_c - 0.3516*(x_c**2) + 0.2843*(x_c**3) - 0.1015*(x_c**4))
             bot = - top
-            return top, bot, x_c
+            top[-1] = 0
+            x_c_new = np.append(x_c, np.flip(x_c)[1:])
+            foil = np.append(top, np.flip(bot)[1:])
+            return foil, x_c_new
+
+    def vortices(self):
+        foil, x_c_new  = self.construct_airfoil()
+        x_vort = (x_c_new[1:] + x_c_new[0:-1]) * 0.5
+        y_vort = (foil[1:] + foil[0:-1]) * 0.5
+        return x_vort, y_vort
 
     def plot(self):
-        top, bot, x_c = self.construct_airfoil()
-        x_c_new = np.append(x_c, np.flip(x_c))
-        foil = np.append(top, np.flip(bot))
-        plt.plot(x_c_new, foil, "*--")
+        foil, x_c = self.construct_airfoil()
+        x_vort, y_vort = self.vortices()
+        plt.plot(x_c, foil, "*--", x_vort, y_vort, "*r")
         plt.show()
 
 
@@ -33,5 +41,6 @@ class airfoil:
 
 if __name__ == "__main__":
     a = airfoil()
-
+    a.vortices()
     a.plot()
+
