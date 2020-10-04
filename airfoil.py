@@ -7,7 +7,7 @@ class AirfoilGen:
     def __init__(self, airfoil_name="NACA2412", nb_points=101, alpha=8, chord=1):
         self.name = airfoil_name
         self.nb_points = nb_points
-        self.panels = 2 * self.nb_points - 1
+        self.panels = 2 * (self.nb_points - 1)
         self.alpha = alpha
         self.chord = chord
         self.a0 = 0.2969
