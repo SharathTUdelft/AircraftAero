@@ -1,16 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from airfoil import AirfoilGen
 
-class Airfoil:
 
-    def __init__(self, airfoil_name="NACA0012", airfoil_type="symmetric", resolution=10, alpha = 8):
-        self.type = airfoil_type
-        self.name = airfoil_name
-        self.resolution = resolution
+airfoil = AirfoilGen(airfoil_name="NACA0012", chord=1, nb_points=101)
+
+class Solver:
+
+    def __init__(self, airfoil=airfoil, alpha = 8):
         self.alpha = np.deg2rad(alpha)
-
-        self.construct_airfoil()
+        self.airfoil = airfoil
+        self.panels = self.airfoil.panels
+        self.points = self.airfoil.nb_points
+        self.x_c = self.airfoil.x_foil
+        self.foil = self.airfoil.y_foil
 
         self.cn1 = np.zeros((self.panels, self.panels))
         self.cn2 = np.zeros((self.panels, self.panels))
@@ -22,30 +26,12 @@ class Airfoil:
         self.RHS = np.zeros((self.points, 1))
         self.V = np.zeros(self.panels)
         self.CP = np.zeros(self.panels)
-        print("fsd")
-
-    def name_scrape(self):
-        return self.name[4], self.name[5], self.name[6], self.name[7]
-
-    def construct_airfoil(self):
-        if self.type == "symmetric":
-            theta = np.linspace(0, np.pi, self.resolution)
-            x_c = 0.5 * (1 - np.cos(theta))
-            x_c = np.flip(x_c) # flipped so as per fotran program
-            a, b, c, d = self.name_scrape()
-            t = int(c+d)/100
-            top = 5*t*(0.2969*(x_c**0.5) - 0.1260*x_c - 0.3516*(x_c**2) + 0.2843*(x_c**3) - 0.1015*(x_c**4))
-            bot = - top
-            top[-1] = 0
-            x_c_new = np.append(x_c, np.flip(x_c)[1:])
-            self.foil = np.append(top, np.flip(bot)[1:])
-            self.x_c = x_c_new
-            self.points = len(self.foil)
-            self.panels = self.points - 1
-            pass
+        self.theta = np.zeros(self.panels)
+        self.cosine = np.zeros(self.panels)
+        self.sine = np.zeros(self.panels)
 
     def vortices(self):
-        self.construct_airfoil()
+
         self.x_vort = (self.x_c[1:] + self.x_c[0:-1]) * 0.5
         self.y_vort = (self.foil[1:] + self.foil[0:-1]) * 0.5
         self.length = (self.foil[1:] - self.foil[0:-1]) ** 2 + (self.x_c[1:] - self.x_c[0:-1]) ** 2
@@ -56,7 +42,6 @@ class Airfoil:
         self.sine = np.sin(self.theta)
 
     def solve(self):
-        self.construct_airfoil()
         self.vortices()
         self.angles()
         for i in range(self.panels):
@@ -75,11 +60,10 @@ class Airfoil:
                     C = np.sin(self.theta[i] - self.theta[j])
                     D = np.cos(self.theta[i] - self.theta[j])
                     E = (self.x_vort[i] - self.x_c[j]) * self.sine[j] - (self.y_vort[i] - self.foil[j]) * self.cosine[j]
-                    F = np.log(1 + self.length[j]* (self.length[j] + 2*A)/B )
+                    F = np.log(1 + self.length[j] * (self.length[j] + 2*A)/B )
                     G = np.arctan2(E*self.length[j], B+(A*self.length[j]) )
                     P = ((self.x_vort[i] - self.x_c[j]) * np.sin(self.theta[i] - 2*self.theta[j])) + \
                         ((self.y_vort[i] - self.foil[j]) * np.cos(self.theta[i] - 2*self.theta[j]))
-
                     Q = ((self.x_vort[i] - self.x_c[j]) * np.cos(self.theta[i] - 2 * self.theta[j])) - \
                         ((self.y_vort[i] - self.foil[j]) * np.sin(self.theta[i] - 2 * self.theta[j]))
 
@@ -114,17 +98,17 @@ class Airfoil:
                 self.V[i] = self.V[i] + self.AT[i, j]*self.gamma[j]
                 self.CP[i] = 1 - self.V[i]**2
 
-
-
     def plot(self):
-        self.construct_airfoil()
         self.vortices()
         plt.plot(self.x_c, self.foil, "*--", self.x_vort, self.y_vort, "*r")
+        plt.axis("equal")
         plt.show()
+        a.solve()
 
 
 if __name__ == "__main__":
-    a = Airfoil()
-
-    a.solve()
+    foil = AirfoilGen(airfoil_name="NACA0012", chord=1, nb_points=101)
+    a = Solver(airfoil=foil)
+    print(a.foil)
+    a.plot()
 
