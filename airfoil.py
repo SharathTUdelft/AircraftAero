@@ -73,6 +73,7 @@ class AirfoilGen:
 
     def plot_foil(self):
         self.construct_foil()
+
         plt.plot(self.x_cord, self.y_cam, "*", self.x_u, self.y_u, "-*b", self.x_l, self.y_l, "-*r")
         plt.axis('equal')
         plt.show()
@@ -80,8 +81,17 @@ class AirfoilGen:
     def airfoil(self):
         return self.x_u, self.y_u, self.x_l, self.y_l
 
+    def coordinates(self):
+        cord_x = np.flip(self.x_l)
+        cord_y = np.flip(self.y_l)
+        #print(cord_x)
+        cord_x_f = np.append(self.x_l, cord_x[1:])
+        cord_y_f = np.append(self.y_l, cord_y[1:])
+        print(cord_x_f)
+
 
 if __name__ == "__main__":
     a = AirfoilGen(chord=1)
 
     a.plot_foil()
+    a.coordinates()
