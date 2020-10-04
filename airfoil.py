@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 class AirfoilGen:
 
-    def __init__(self, airfoil="NACA2412", nb_points=101, alpha=8, chord=1):
-        self.name = airfoil
+    def __init__(self, airfoil_name="NACA2412", nb_points=101, alpha=8, chord=1):
+        self.name = airfoil_name
         self.nb_points = nb_points
-        self.panels = self.nb_points + 1
+        self.panels = self.nb_points - 1
         self.alpha = alpha
         self.chord = chord
         self.a0 = 0.2969
@@ -25,6 +25,8 @@ class AirfoilGen:
         self.y_u = np.zeros(self.nb_points)
         self.y_l = np.zeros(self.nb_points)
         self.x_cord = np.zeros(self.nb_points)
+        self.y_cord = np.zeros(self.nb_points)
+        self.run()
 
     def parsefoil(self):
         camber_max = (float(self.name[4]) / 100) * self.chord
@@ -62,12 +64,10 @@ class AirfoilGen:
             self.theta[i] = np.arctan(self.dy_dx_cam[i])
 
         # upper surface
-        for i in range(self.nb_points):
             self.x_u[i] = self.x_cord[i] - self.y_t[i] * np.sin(self.theta[i])
             self.y_u[i] = self.y_cam[i] + self.y_t[i] * np.cos(self.theta[i])
 
         # lower surface
-        for i in range(self.nb_points):
             self.x_l[i] = self.x_cord[i] + self.y_t[i] * np.sin(self.theta[i])
             self.y_l[i] = self.y_cam[i] - self.y_t[i] * np.cos(self.theta[i])
 
@@ -84,14 +84,21 @@ class AirfoilGen:
     def coordinates(self):
         cord_x = np.flip(self.x_l)
         cord_y = np.flip(self.y_l)
-        #print(cord_x)
-        cord_x_f = np.append(self.x_l, cord_x[1:])
-        cord_y_f = np.append(self.y_l, cord_y[1:])
-        print(cord_x_f)
+        self.x_foil = np.append(self.x_u, cord_x[1:])
+        self.y_foil = np.append(self.y_u, cord_y[1:])
+        pass
+
+    def run(self):
+        self.construct_foil()
+        self.coordinates()
+
 
 
 if __name__ == "__main__":
     a = AirfoilGen(chord=1)
+    print(a.x_foil)
+    # x, y = a.coordinates()
+    # plt.plot(x , y)
+    # plt.axis("equal")
+    # plt.show()
 
-    a.plot_foil()
-    a.coordinates()
