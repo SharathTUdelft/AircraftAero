@@ -48,16 +48,13 @@ class AirfoilGen:
 
             self.y_t[i] = 5 * t * (term0 + term1 + term2 + term3 + term4)
 
-
-
             if (self.x_cord[i] >= 0 and self.x_cord[i] < cam_pos):
-                # self.y_cam[i] = 0.1
-                self.y_cam[i] =  (cam_max/cam_pos**2) * ((2*cam_pos * self.x_cord[i]) - self.x_cord[i]**2)
+
+                self.y_cam[i] = (cam_max/cam_pos**2) * ((2*cam_pos * self.x_cord[i]) - self.x_cord[i]**2)
                 self.dy_dx_cam[i] = ((2*cam_max)/cam_pos**2)*(cam_pos - self.x_cord[i])
 
             elif self.x_cord[i] >= cam_pos and self.x_cord[i] <= self.chord:
 
-                # self.y_cam[i] = 0.1
                 self.y_cam[i] = (cam_max / (1 - cam_pos) ** 2) * (1 - 2 * cam_pos + (2 * cam_pos * self.x_cord[i]) - self.x_cord[i] ** 2)
                 self.dy_dx_cam[i] = ((2 * cam_max) / (1 - cam_pos) ** 2) * (cam_pos - self.x_cord[i])
 
@@ -91,7 +88,6 @@ class AirfoilGen:
     def run(self):
         self.construct_foil()
         self.coordinates()
-
 
 
 if __name__ == "__main__":
