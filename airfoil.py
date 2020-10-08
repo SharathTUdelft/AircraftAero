@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 class AirfoilGen:
 
-    def __init__(self, airfoil_name="NACA2412", nb_points=101, alpha=8, chord=1):
+    def __init__(self, airfoil_name="NACA2412", nb_points=51, alpha=8, chord=1):
         self.name = airfoil_name
         self.nb_points = nb_points
         self.panels = 2 * (self.nb_points - 1)
@@ -82,10 +82,10 @@ class AirfoilGen:
         return self.x_u, self.y_u, self.x_l, self.y_l
 
     def coordinates(self):
-        cord_x = np.flip(self.x_l)
-        cord_y = np.flip(self.y_l)
-        self.x_foil = np.append(self.x_u, cord_x[1:])
-        self.y_foil = np.append(self.y_u, cord_y[1:])
+        cord_x = np.flip(self.x_u)
+        cord_y = np.flip(self.y_u)
+        self.x_foil = np.append(self.x_l, cord_x[1:])
+        self.y_foil = np.append(self.y_l, cord_y[1:])
         pass
 
     def run(self):
@@ -96,7 +96,7 @@ class AirfoilGen:
 
 if __name__ == "__main__":
     a = AirfoilGen(chord=1)
-    print(a.x_foil)
+    print(a.y_foil)
     # x, y = a.coordinates()
     # plt.plot(x , y)
     # plt.axis("equal")
