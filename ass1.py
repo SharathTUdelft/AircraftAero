@@ -1,49 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
-from airfoil import AirfoilGen
-
-
-airfoilcons = AirfoilGen(airfoil_name="NACA0012", chord=1, nb_points=8)
-airfoilcons.run()
-x_c = airfoilcons.x_foil
-foil = airfoilcons.y_foil
-
-# plt.axis("equal")
-# plt.plot(x, y, "--*")
-
-panels = airfoilcons.panels
-nb_points = panels + 1
-alpha = np.deg2rad(5)
-
-
-foil[0] = 0
-foil[-1] = 0
-cn1 = np.zeros((panels,panels))
-cn2 = np.zeros((panels,panels))
-ct1 = np.zeros((panels,panels))
-ct2 = np.zeros((panels,panels))
-AT = np.zeros((panels, nb_points))
-AN = np.zeros((nb_points, nb_points))
-gamma = np.zeros((nb_points, 1))
-RHS = np.zeros((nb_points, 1))
-V = np.zeros(panels)
-CP = np.zeros(panels)
-
+from declarations import *
 
 x_vort = (x_c[1:] + x_c[0:-1]) * 0.5
 y_vort = (foil[1:] + foil[0:-1]) * 0.5
 length = ((foil[1:] - foil[0:-1]) ** 2 + (x_c[1:] - x_c[0:-1]) ** 2) ** 0.5
 
-# plt.axis("equal")
-# plt.plot(x, y, "--*", x_vort, y_vort, '*r')
-# plt.show()
-
-
-theta = np.arctan2(foil[1:] - foil[0:-1], x_c[1:] - x_c[0:-1]) #Check the sign
+theta = np.arctan2(foil[1:] - foil[0:-1], x_c[1:] - x_c[0:-1])
 cosine = np.cos(theta)
 sine = np.sin(theta)
-
 
 for i in range(panels):
     RHS[i] = np.sin(theta[i] - alpha)
