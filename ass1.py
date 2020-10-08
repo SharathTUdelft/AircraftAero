@@ -65,8 +65,6 @@ class vlm:
                 V[i] = V[i] + AT[i, j] * gamma[j]
                 CP[i] = 1 - V[i] ** 2
 
-
-
 if __name__ == "__main__":
 
     solver = vlm()
