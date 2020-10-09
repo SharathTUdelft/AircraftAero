@@ -1,6 +1,29 @@
 import matplotlib.pyplot as plt
 from declarations import *
 
+
+
+
+x_c = airfoilcons.x_foil
+foil = airfoilcons.y_foil
+
+foil[0] = 0
+foil[-1] = 0
+
+panels = airfoilcons.panels
+nb_points = panels + 1
+alpha = np.deg2rad(5)
+cn1 = np.zeros((panels,panels))
+cn2 = np.zeros((panels,panels))
+ct1 = np.zeros((panels,panels))
+ct2 = np.zeros((panels,panels))
+AT = np.zeros((panels, nb_points))
+AN = np.zeros((nb_points, nb_points))
+gamma = np.zeros((nb_points, 1))
+RHS = np.zeros((nb_points, 1))
+V = np.zeros(panels)
+CP = np.zeros(panels)
+
 x_vort = (x_c[1:] + x_c[0:-1]) * 0.5
 y_vort = (foil[1:] + foil[0:-1]) * 0.5
 length = ((foil[1:] - foil[0:-1]) ** 2 + (x_c[1:] - x_c[0:-1]) ** 2) ** 0.5
@@ -18,6 +41,8 @@ class vlm:
         pass
 
     def solve(self):
+        CL = 0
+        CM = 0
         for i in range(panels):
             for j in range(panels):
                 if i == j:
@@ -64,12 +89,18 @@ class vlm:
             for j in range(nb_points):
                 V[i] = V[i] + AT[i, j] * gamma[j]
                 CP[i] = 1 - V[i] ** 2
+            CL += 2 * (gamma[i] + gamma[i + 1]) * length[i] * np.pi
+            CM += CP[i] * length[i] * (((x_vort[i] - 0.25) * np.cos(theta[i])) + y_vort[i] * np.sin(theta[i]))
+
+        return CP, CL, CM, x_vort
+
 
 if __name__ == "__main__":
 
     solver = vlm()
     solver.solve()
-    plt.plot(x_vort, CP, "*--")
+    plt.plot(x_vort, -CP, "*--")
+    plt.xlabel(airfoil_name + " x/c")
     plt.show()
 
 
