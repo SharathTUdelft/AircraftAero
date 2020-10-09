@@ -1,7 +1,9 @@
 import numpy as np
 from airfoil import AirfoilGen
 
-airfoilcons = AirfoilGen(airfoil_name="NACA0012", chord=1, nb_points=8)
+airfoil_name = input("Enter the airfoil name:")
+
+airfoilcons = AirfoilGen(airfoil_name=airfoil_name, chord=1, nb_points=8)
 airfoilcons.run()
 x_c = airfoilcons.x_foil
 foil = airfoilcons.y_foil
