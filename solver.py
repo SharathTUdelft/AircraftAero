@@ -132,16 +132,16 @@ class vlm:
                     self.ct2[i, j] = C + 0.5 * P * F / self.length[j] + (A * D - C * E) * G / self.length[j]
                     self.ct1[i, j] = 0.5 * C * F - D * G - self.ct2[i, j]
 
-                for j in range(self.panels):
-                    self.AN[j, 0] = self.cn1[j, 0]
-                    self.AN[j, -1] = self.cn2[j, -1]
+        for j in range(self.panels):
+            self.AN[j, 0] = self.cn1[j, 0]
+            self.AN[j, -1] = self.cn2[j, -1]
 
-                    self.AT[j, 0] = self.ct1[j, 0]
-                    self.AT[j, -1] = self.ct2[j, -1]
+            self.AT[j, 0] = self.ct1[j, 0]
+            self.AT[j, -1] = self.ct2[j, -1]
 
-                    for k in range(1, self.panels):
-                        self.AN[j, k] = self.cn1[j, k] + self.cn2[j, k-1]
-                        self.AT[j, k] = self.ct1[j, k] + self.ct2[j, k-1]
+            for k in range(1, self.panels):
+                self.AN[j, k] = self.cn1[j, k] + self.cn2[j, k-1]
+                self.AT[j, k] = self.ct1[j, k] + self.ct2[j, k-1]
         self.AN[-1, 0] = 1
         self.AN[-1, -1] = 1
         for i in range(1, self.panels):
@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
 
     ax = plt.gca()
-    ax.plot(x_cord, cp_cord, "b", x_mid, cp_foil, "-*r" )
+    ax.plot(x_cord, cp_cord, "b", x_mid, cp_foil, "--r" )
 
     plt.xlabel(r' Normalized chordwise distribution ($\frac{x}{c}$)  $\longrightarrow$ ', fontsize= 16)
     plt.xticks(np.arange(min(x_cord), max(x_cord) , 0.1))
