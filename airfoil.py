@@ -6,6 +6,9 @@ class AirfoilGen:
 
     def __init__(self, airfoil_name="NACA2412", nb_points=51, alpha=8, chord=1):
         self.name = airfoil_name
+        if not nb_points%2 == 1:
+            raise ValueError("nb_points should be odd")
+
         self.nb_points = nb_points
         self.panels = 2 * (self.nb_points - 1)
         self.alpha = alpha
@@ -83,11 +86,16 @@ class AirfoilGen:
         cord_y = np.flip(self.y_u)
         self.x_foil = np.append(self.x_l, cord_x[1:])
         self.y_foil = np.append(self.y_l, cord_y[1:])
-        pass
+        self.x_mid = (self.x_foil[1:] + self.x_foil[0:-1]) * 0.5
+        self.y_mid = (self.y_foil[1:] + self.y_foil[0:-1]) * 0.5
+
 
     def run(self):
         self.construct_foil()
         self.coordinates()
+        return self.x_foil, self.y_foil, self.x_mid, self.y_mid, self.panels
+
+
 
 
 if __name__ == "__main__":
