@@ -88,7 +88,8 @@ class vlm:
         self.cosine = np.cos(self.theta)
         self.sine = np.sin(self.theta)
         self.length = ((self.foil[1:] - self.foil[0:-1]) ** 2 + (self.x_c[1:] - self.x_c[0:-1]) ** 2) ** 0.5
-
+        self.V_free = 100
+        self.density = 1.225
         self.cn1 = np.zeros((self.panels, self.panels))
         self.cn2 = np.zeros((self.panels, self.panels))
         self.ct1 = np.zeros((self.panels, self.panels))
@@ -104,7 +105,7 @@ class vlm:
 
 
     def solve(self):
-        for i in range(panels):
+        for i in range(self.panels):
             self.RHS[i] = np.sin(self.theta[i] - self.alpha)
 
         for i in range(self.panels):
@@ -153,15 +154,25 @@ class vlm:
             for j in range(self.nb_points):
                 self.V[i] +=  self.AT[i, j] * self.gamma[j]
                 self.CP[i] = 1 - self.V[i] ** 2
-            self.CL += 2 * (self.gamma[i] + self.gamma[i + 1]) * self.length[i] * np.pi
+                circ = 0
+                for i in range(self.panels):
+
+                    circ += self.gamma[i] * self.length[i] * 2 * np.pi * self.V_free
+                Lift =  self.density * self.V_free * circ
+                self.CL = 2 * Lift / (self.density * (self.V_free**2))
+            #self.CL += 2 * (self.gamma[i] + self.gamma[i + 1]) * self.length[i] * np.pi
             self.CM += self.CP[i] * self.length[i] * (((self.x_vort[i] - 0.25) * np.cos(self.theta[i])) + self.y_vort[i] * np.sin(self.theta[i]))
 
         return self.CP, self.CL, self.CM, self.x_vort
 
-    def cp_plot(self):
+    def cp_val(self):
         # plt.plot(self.x_vort, self.CP, "--")
         # plt.show()
-        return self.x_vort, self.CP
+        return self.CP
+
+    def cl_val(self):
+
+        return self.CL
 
 
 if __name__ == "__main__":
@@ -172,7 +183,7 @@ if __name__ == "__main__":
 
     foil_solver = vlm(x_foil=x_foil, y_foil=y_foil,x_mid=x_mid, y_mid=y_mid, panels=panels)
     foil_solver.solve()
-    _, cp_foil =foil_solver.cp_plot()
+    cp_foil =foil_solver.cp_val()
     with open("cp_file_0012", "r+") as f:
         x_cord = []
         y_cord = []
